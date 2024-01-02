@@ -2,6 +2,64 @@
 
 import argparse
 from abc import ABC, abstractmethod
+import heapq
+
+class HuffBaseNode(ABC):
+    @abstractmethod
+    def isLeaf(self):
+        pass
+
+    @abstractmethod
+    def weight(self):
+        pass
+
+class HuffLeafNode(HuffBaseNode):
+    def __init__(self, element, weight):
+        self.element = element
+        self._weight = weight
+
+    def value(self):
+        return self.element
+
+    def weight(self):
+        return self._weight
+    
+    def isLeaf(self):
+        return True
+    
+
+class HuffInternalNode(HuffBaseNode):
+    def __init__(self, left, right, weight):
+        self._left = left
+        self._right = right
+        self._weight = weight
+
+    def left(self):
+        return self._left
+    
+    def right(self):
+        return self._right
+
+    def weight(self):
+        return self._weight
+    
+    def isLeaf(self):
+        return True
+    
+class HuffTree:
+    def __init__(self, el=None, wt=None, l=None, r=None):
+        if el is not None and wt is not None:
+            self._root = HuffLeafNode(el, wt)
+        elif l is not None and r is not None and wt is not None:
+            self._root = HuffInternalNode(l, r, wt)
+        else:
+            raise ValueError("Invalid arguments for creating HuffTree")
+
+    def root(self):
+        return self._root
+
+    def __lt__(self, other):
+        return self._root.weight() < other._root.weight()
 
 def main():
     parser = argparse.ArgumentParser(
@@ -23,7 +81,24 @@ def main():
             else:
                 char_occurrence_freq[char] += 1
 
-    print(char_occurrence_freq)
+    heap = []
+
+    for char in char_occurrence_freq:
+        element = char
+        weight = char_occurrence_freq[char]
+        tree = HuffTree(el=element, wt=weight)
+        heap.append(tree)
+
+    heapq.heapify(heap)
+
+    while len(heap) > 1:
+        tmp1 = heapq.heappop(heap)
+        tmp2 = heapq.heappop(heap)
+        new_weight = tmp1.root().weight() + tmp2.root().weight()
+        tmp3 = HuffTree(l=tmp1.root(), r=tmp2.root(), wt=new_weight)
+        heapq.heappush(heap, tmp3)
+
+
     
 if __name__ == "__main__":
     main()
