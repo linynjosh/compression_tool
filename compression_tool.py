@@ -98,7 +98,7 @@ def main():
         tmp3 = HuffTree(l=tmp1.root(), r=tmp2.root(), wt=new_weight)
         heapq.heappush(heap, tmp3)
 
-
+    print("YAY FINISHED STEP 2")
     
 if __name__ == "__main__":
     main()
